@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import nedb from 'nedb-promises';
+import { menuDB } from './order.js'
 
 const cartDB = new nedb({ filename: 'cart.db', autoload: true });
 const router = Router();
@@ -7,8 +8,19 @@ const router = Router();
 // Route to add an item to the cart
 router.post('/', async (req, res) => {
     try {
-        const cartItem = req.body;
-        const newCartItem = await cartDB.insert(cartItem);
+        // Hämta id från det föreslagna objektet i varukorgen
+        const itemId = req.body._id;
+
+        // Kontrollera om det föreslagna objektet finns i menyn
+        const menuItem = await menuDB.findOne({_id: itemId });
+
+        // Om det föreslagna objektet inte finns i menyn, returnera en felstatus
+        if (!menuItem) {
+            return res.status(404).send("Item not found in menu");
+        }
+
+        // Om det föreslagna objektet finns i menyn, lägg till det i varukorgen
+        const newCartItem = await cartDB.insert(menuItem);
         console.log("Added to cart:", newCartItem);
         res.status(201).json(newCartItem);
     } catch (error) {
@@ -47,3 +59,4 @@ router.delete('/:itemId', async (req, res) => {
 });
 
 export default router;
+export { cartDB }

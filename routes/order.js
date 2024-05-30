@@ -92,15 +92,13 @@ router.get('/', async (req, res) => {
   }
 });
 
+
+
 // Route to get a specific menu item by id
 router.get('/:id', async (req, res) => {
   try {
     const itemId = req.params.id;
-    let menuItem = await menuDB.findOne({ _id: itemId });
-
-    if (!menuItem) {
-      menuItem = await menuDB.findOne({ id: parseInt(itemId) });
-    }
+    const menuItem = await menuDB.findOne({ _id: itemId });
 
     if (menuItem) {
       console.log("Menu item:", menuItem);
@@ -113,6 +111,8 @@ router.get('/:id', async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+
 
 // Route to add an item to the cart
 // router.post('/cart', async (req, res) => {
@@ -140,4 +140,5 @@ router.get('/:id', async (req, res) => {
 // });
 
 export default router;
+export { menuDB };
 

@@ -5,9 +5,9 @@ import nedb from "nedb-promises"
 import errorHandler from "./middlewares/errorHandler.js";
 import orderRouter from "./routes/order.js";
 import cartRouter from "./routes/cart.js"; // Importera cartRouter för att hantera varukorgsoperationer
+import authRouter from "./routes/auth.js"
+import checkoutRouter from "./routes/checkout.js"
 
-
-const database = new nedb ({filename: "airbean.db", autoload: true});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,6 +20,8 @@ app.use(express.json())
 // Använd separata routar för order och varukorg
 app.use('/order', orderRouter)
 app.use('/cart', cartRouter) // Använd cartRouter för att hantera varukorgsoperationer
+app.use('/auth', authRouter) 
+app.use('/checkout', checkoutRouter)
 
 global.currentUser = null
 
