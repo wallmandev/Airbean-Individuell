@@ -10,6 +10,12 @@ router.post('/', checkIfCoffeeSoldOut, async (req, res) => {
     try {
         const menuItem = req.menuItem;
 
+
+        // Kontrollera om det föreslagna objektet finns i menyn
+        const menuItem = await menuDB.findOne({ _id: itemId });
+
+        // Om det föreslagna objektet inte finns i menyn, returnera en felstatus
+
         if (!menuItem) {
             return res.status(404).send("Item not found in menu");
         }
@@ -74,7 +80,13 @@ router.delete('/:itemId', async (req, res) => {
     }
 });
 
+
 router.get('/price', async (req, res) => {
+
+
+
+app.get('/price', async (req, res) => {
+
     try {
         // Läs alla objekt från cart.db
         const cartItems = await cartDB.find({});
@@ -89,6 +101,7 @@ router.get('/price', async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+
 
 export default router;
 export { cartDB }
