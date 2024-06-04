@@ -1,33 +1,51 @@
 import { Router } from 'express';
 import nedb from 'nedb-promises';
-import { menuDB } from './order.js'
+import checkIfCoffeeSoldOut from '../middlewares/coffeSoldOut.js';
 
 const cartDB = new nedb({ filename: 'cart.db', autoload: true });
 const router = Router();
 
 // Route to add an item to the cart
-router.post('/', async (req, res) => {
+router.post('/', checkIfCoffeeSoldOut, async (req, res) => {
     try {
-        // Hämta id från det föreslagna objektet i varukorgen
-        const itemId = req.body._id;
+        const menuItem = req.menuItem;
 
+<<<<<<< HEAD
         // Kontrollera om det föreslagna objektet finns i menyn
         const menuItem = await menuDB.findOne({ _id: itemId });
 
         // Om det föreslagna objektet inte finns i menyn, returnera en felstatus
+=======
+>>>>>>> 31134fbe050f58e3dea191b519df69bd9c1c5c15
         if (!menuItem) {
             return res.status(404).send("Item not found in menu");
         }
 
-        // Om det föreslagna objektet finns i menyn, lägg till det i varukorgen
-        const newCartItem = await cartDB.insert(menuItem);
-        console.log("Added to cart:", newCartItem);
-        res.status(201).json(newCartItem);
+        // Kontrollera om varan redan finns i varukorgen
+        const existingCartItem = await cartDB.findOne({ _id: menuItem._id });
+
+        if (existingCartItem) {
+            // Uppdatera kvantiteten om varan redan finns i varukorgen
+            const updatedCartItem = await cartDB.update(
+                { _id: menuItem._id },
+                { $inc: { quantity: 1 } },
+                { returnUpdatedDocs: true }
+            );
+            console.log("Updated cart item:", updatedCartItem);
+            res.status(200).json(updatedCartItem);
+        } else {
+            // Lägg till varan i varukorgen med kvantitet 1
+            menuItem.quantity = 1;
+            const newCartItem = await cartDB.insert(menuItem);
+            console.log("Added to cart:", newCartItem);
+            res.status(201).json(newCartItem);
+        }
     } catch (error) {
         console.error("Error adding item to cart:", error);
         res.status(500).send("Internal Server Error");
     }
 });
+
 
 // Route to get all items in the cart
 router.get('/', async (req, res) => {
@@ -45,7 +63,7 @@ router.get('/', async (req, res) => {
 router.delete('/:itemId', async (req, res) => {
     try {
         const itemId = req.params.itemId;
-        const numRemoved = await cartDB.remove({ _id: itemId });
+        const numRemoved = await cartDB.remove({ _id: itemId }, {});
         if (numRemoved === 0) {
             res.status(404).send("Item not found in cart");
         } else {
