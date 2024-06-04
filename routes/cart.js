@@ -14,7 +14,10 @@ router.get('/', async (req, res) => {
     try {
         const cartItems = await cartDB.find({});
         console.log("All cart items:", cartItems);
-        res.json(cartItems);
+        // Extrahera priserna och summera dem
+         const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
+        res.json({ totalPrice, cartItems });
+
     } catch (error) {
         console.error("Error fetching cart items:", error);
         res.status(500).send("Internal Server Error");
