@@ -1,17 +1,19 @@
+
+
 import { Router } from 'express';
 import nedb from 'nedb-promises';
-import { cartDB } from './cart.js'; // Se till att denna sökväg är korrekt
+import { cartDB } from './cart.js';
 import { orderHistoryDB } from './db.js';
 
 const router = Router();
 
-
 router.post('/', async (req, res) => {
     try {
-        // const { userId } = req.body;
-        // if (!userId) {
-        //     return res.status(400).json({ success: false, message: "User ID is required" });
-        // }
+        const userId = req.headers['user-id']; // Antag att användar-ID är skickad i header
+
+        if (!userId) {
+            return res.status(400).json({ success: false, message: "User ID is required" });
+        }
 
         const cartItems = await cartDB.find({});
         console.log("Cart items fetched for checkout:", cartItems);
@@ -21,7 +23,7 @@ router.post('/', async (req, res) => {
         }
 
         const order = {
-            // userId,
+            userId,
             items: cartItems,
             date: new Date()
         };
@@ -29,13 +31,14 @@ router.post('/', async (req, res) => {
         await orderHistoryDB.insert(order);
 
         await cartDB.remove({}, { multi: true });
-
-        res.json({ success: true, message: "Order placed successfully" });
+        const deliveryTime = Math.floor(Math.random() * 10) + 1;
+        res.json({ success: true, message: `Order placed successfully, your coffee will be delivered in: ${deliveryTime} minutes`  });
     } catch (error) {
         console.error("Error processing checkout:", error);
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
+
 
 export default router;
 

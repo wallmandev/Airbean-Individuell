@@ -1,13 +1,13 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import nedb from "nedb-promises"
 import errorHandler from "./middlewares/errorHandler.js";
 import orderRouter from "./routes/order.js";
-import cartRouter from "./routes/cart.js"; // Importera cartRouter för att hantera varukorgsoperationer
-import authRouter from "./routes/auth.js"
-import checkoutRouter from "./routes/checkout.js"
-import orderHistoryRouter from "./routes/orderHistory.js"
+import cartRouter from "./routes/cart.js";
+import authRouter from "./routes/auth.js";
+import checkoutRouter from "./routes/checkout.js";
+import orderHistoryRouter from "./routes/orderHistory.js";
+import aboutRouter from "./routes/about.js"
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -16,32 +16,37 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 8080;
 
-app.use(express.json())
+global.currentUser = null;
 
-// Använd separata routar för order och varukorg
-app.use('/order', orderRouter)
-app.use('/cart', cartRouter) // Använd cartRouter för att hantera varukorgsoperationer
-app.use('/auth', authRouter) 
-app.use('/checkout', checkoutRouter)
-app.use('/orderHistory', orderHistoryRouter)
+app.use(express.json());
 
-global.currentUser = null
+app.use((req, res, next) => {
+    console.log(`${req.method} request for '${req.url}' - ${JSON.stringify(req.body)}`);
+    next();
+});
 
-// Ställ in statiska filer för att hantera begäranden till '/public' - mappen
-app.use(express.static(path.join(__dirname, 'public')))
+app.use('/order', orderRouter);
+app.use('/cart', cartRouter);
+app.use('/auth', authRouter);
+app.use('/checkout', checkoutRouter);
+app.use('/orderHistory', orderHistoryRouter);
+app.use('/about', aboutRouter);
 
-// Flytta felhanterare för 404-sidor till slutet av alla rutdefineringar
-app.get('/error', (req, res, next) => {
-    const error = new Error('page not found')
+app.get('/', (req, res) => {
+    res.send('Server is running');
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use((req, res, next) => {
+    const error = new Error('Page not found');
     error.status = 404;
-    next(error)
-})
+    next(error);
+});
 
-// Starta servern och lyssna på PORT
-app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
+app.use(errorHandler);
 
-// Hantera fel med hjälp av felhanteraren
-app.use(errorHandler)
+app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
 
 
