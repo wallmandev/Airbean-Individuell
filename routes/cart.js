@@ -10,13 +10,12 @@ router.post('/', checkIfCoffeeSoldOut, async (req, res) => {
     try {
         const menuItem = req.menuItem;
 
-<<<<<<< HEAD
+
         // Kontrollera om det föreslagna objektet finns i menyn
         const menuItem = await menuDB.findOne({ _id: itemId });
 
         // Om det föreslagna objektet inte finns i menyn, returnera en felstatus
-=======
->>>>>>> 31134fbe050f58e3dea191b519df69bd9c1c5c15
+
         if (!menuItem) {
             return res.status(404).send("Item not found in menu");
         }
@@ -51,8 +50,13 @@ router.post('/', checkIfCoffeeSoldOut, async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const cartItems = await cartDB.find({});
+        const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
+
+        // Returnera det totala beloppet
+        res.json({ cartItems, totalPrice });
         console.log("All cart items:", cartItems);
-        res.json(cartItems);
+        // res.json(cartItems);
+        
     } catch (error) {
         console.error("Error fetching cart items:", error);
         res.status(500).send("Internal Server Error");
@@ -77,8 +81,12 @@ router.delete('/:itemId', async (req, res) => {
 });
 
 
+router.get('/price', async (req, res) => {
+
+
 
 app.get('/price', async (req, res) => {
+
     try {
         // Läs alla objekt från cart.db
         const cartItems = await cartDB.find({});
@@ -93,7 +101,6 @@ app.get('/price', async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
-
 
 
 export default router;
