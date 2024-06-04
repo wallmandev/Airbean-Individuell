@@ -5,3 +5,8 @@ För att kolla efter specifikt id:
 
 
 
+För login : 
+http://localhost:8080/auth/login
+
+För registrering:
+http://localhost:8080/auth/register
