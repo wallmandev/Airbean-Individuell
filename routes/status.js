@@ -1,9 +1,6 @@
 import { Router } from 'express';
 
 
-
-
-
 const statusRouter = Router();
 
 statusRouter.get('/', async (req, res) => {

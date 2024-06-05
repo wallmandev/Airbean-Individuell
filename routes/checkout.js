@@ -11,10 +11,6 @@ router.post('/', async (req, res) => {
     try {
         const userId = req.headers['user-id']; // Antag att användar-ID är skickad i header
 
-        if (!userId) {
-            return res.status(400).json({ success: false, message: "User ID is required" });
-        }
-
         const cartItems = await cartDB.find({});
         console.log("Cart items fetched for checkout:", cartItems);
 
@@ -23,22 +19,23 @@ router.post('/', async (req, res) => {
         }
 
         const order = {
-            userId,
+            userId: userId || 'guest', // Om userId inte finns, använd 'guest'
             items: cartItems,
             date: new Date()
         };
 
-        await orderHistoryDB.insert(order);
+        if (userId) {
+            await orderHistoryDB.insert(order); // Spara endast i orderhistorik om användar-ID finns
+        }
 
         await cartDB.remove({}, { multi: true });
         const deliveryTime = Math.floor(Math.random() * 10) + 1;
-        res.json({ success: true, message: `Order placed successfully, your coffee will be delivered in: ${deliveryTime} minutes`  });
+        res.json({ success: true, message: `Order placed successfully, your coffee will be delivered in: ${deliveryTime} minutes` });
     } catch (error) {
         console.error("Error processing checkout:", error);
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
-
 
 export default router;
 

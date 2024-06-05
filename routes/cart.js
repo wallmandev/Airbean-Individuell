@@ -73,7 +73,7 @@ router.delete('/:itemId', async (req, res) => {
             res.status(404).send("Item not found in cart");
         } else {
             console.log("Item removed from cart:", itemId);
-            res.status(204).end();
+            res.status(200).json({ success: true, message: "Item removed from cart" });
         }
     } catch (error) {
         console.error("Error removing item from cart:", error);

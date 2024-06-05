@@ -22,20 +22,21 @@ global.currentUser = null;
 
 app.use(express.json());
 
-app.use(notFoundMiddleware)
+
 
 app.use((req, res, next) => {
     console.log(`${req.method} request for '${req.url}' - ${JSON.stringify(req.body)}`);
     next();
 });
 
-app.use('/order', orderRouter);
+app.use('/menu', orderRouter);
 app.use('/cart', cartRouter);
 app.use('/auth', authRouter);
 app.use('/checkout', checkoutRouter);
 app.use('/orderHistory', orderHistoryRouter);
 app.use('/about', aboutRouter);
 app.use('/status', statusRouter);
+app.use(notFoundMiddleware)
 
 app.get('/', (req, res) => {
     res.send('Server is running');
