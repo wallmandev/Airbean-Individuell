@@ -38,6 +38,8 @@ Sen gör du ett POST-anrop.
 För att se orderhistory:
 http://localhost:8080/orderhistory/ (här skriver du in din användares unika id)
 
+För att se status på din order: 
+http://localhost:8080/status
 
 
 
