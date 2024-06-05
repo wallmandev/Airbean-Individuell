@@ -8,6 +8,8 @@ import authRouter from "./routes/auth.js";
 import checkoutRouter from "./routes/checkout.js";
 import orderHistoryRouter from "./routes/orderHistory.js";
 import aboutRouter from "./routes/about.js"
+import statusRouter from "./routes/status.js";
+import notFoundMiddleware from "./middlewares/urlNotFound.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,6 +22,8 @@ global.currentUser = null;
 
 app.use(express.json());
 
+app.use(notFoundMiddleware)
+
 app.use((req, res, next) => {
     console.log(`${req.method} request for '${req.url}' - ${JSON.stringify(req.body)}`);
     next();
@@ -31,6 +35,7 @@ app.use('/auth', authRouter);
 app.use('/checkout', checkoutRouter);
 app.use('/orderHistory', orderHistoryRouter);
 app.use('/about', aboutRouter);
+app.use('/status', statusRouter);
 
 app.get('/', (req, res) => {
     res.send('Server is running');

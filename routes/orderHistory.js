@@ -3,7 +3,7 @@ import { orderHistoryDB } from './db.js';
 
 const router = express.Router();
 
-// Route to fetch order history for a specific user
+
 router.get('/:userId', async (req, res) => {
     try {
         const userId = req.params.userId;
