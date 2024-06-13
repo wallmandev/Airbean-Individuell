@@ -1,23 +1,22 @@
 import { Router } from 'express';
-import nedb from 'nedb-promises';
+import { cartDB, menuDB } from '../databases/databases.js';
+import checkIfCoffeeSoldOut from '../middlewares/checkIfCoffeeSoldOut.js';
+import validateProduct from '../middlewares/validateProduct.js';
+import createdAt from '../middlewares/createdAt.js';
+import { authenticate, checkAdmin } from './auth.js';
+import modifiedAt from '../middlewares/modifiedAt.js';
 
-import checkIfCoffeeSoldOut from '../middlewares/coffeSoldOut.js';
-
-const cartDB = new nedb({ filename: 'cart.db', autoload: true });
 const router = Router();
-
-
-
 
 // Route to get all items in the cart
 router.get('/', async (req, res) => {
     try {
         const cartItems = await cartDB.find({});
         console.log("All cart items:", cartItems);
-        // Extrahera priserna och summera dem
-         const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
-        res.json({ totalPrice, cartItems });
 
+        // Extract prices and sum them
+        const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
+        res.json({ totalPrice, cartItems });
     } catch (error) {
         console.error("Error fetching cart items:", error);
         res.status(500).send("Internal Server Error");
@@ -25,22 +24,19 @@ router.get('/', async (req, res) => {
 });
 
 // Route to add an item to the cart
-
 router.post('/', checkIfCoffeeSoldOut, async (req, res) => {
     try {
-
         const menuItem = req.menuItem;
 
         if (!menuItem) {
             return res.status(404).send("Item not found in menu");
         }
 
-       
-        // Kontrollera om varan redan finns i varukorgen
+        // Check if the item already exists in the cart
         const existingCartItem = await cartDB.findOne({ _id: menuItem._id });
 
         if (existingCartItem) {
-            // Uppdatera kvantiteten om varan redan finns i varukorgen
+            // Update quantity if the item already exists in the cart
             const updatedCartItem = await cartDB.update(
                 { _id: menuItem._id },
                 { $inc: { quantity: 1 } },
@@ -49,7 +45,7 @@ router.post('/', checkIfCoffeeSoldOut, async (req, res) => {
             console.log("Updated cart item:", updatedCartItem);
             res.status(200).json(updatedCartItem);
         } else {
-            // Lägg till varan i varukorgen med kvantitet 1
+            // Add item to the cart with quantity 1
             menuItem.quantity = 1;
             const newCartItem = await cartDB.insert(menuItem);
             console.log("Added to cart:", newCartItem);
@@ -61,9 +57,7 @@ router.post('/', checkIfCoffeeSoldOut, async (req, res) => {
     }
 });
 
-
-// Route to get all items in the cart
-
+// Route to remove an item from the cart
 router.delete('/:itemId', async (req, res) => {
     try {
         const itemId = req.params.itemId;
@@ -82,4 +76,4 @@ router.delete('/:itemId', async (req, res) => {
 });
 
 export default router;
-export { cartDB }
+export { cartDB };

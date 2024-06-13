@@ -1,15 +1,14 @@
-
-
+//checkout.js
 import { Router } from 'express';
 import nedb from 'nedb-promises';
 import { cartDB } from './cart.js';
-import { orderHistoryDB } from './db.js';
+import { orderHistoryDB } from '../databases/databases.js';
 
 const router = Router();
 
 router.post('/', async (req, res) => {
     try {
-        const userId = req.headers['user-id']; // Antag att användar-ID är skickad i header
+        const userId = req.headers['user-id'];
 
         const cartItems = await cartDB.find({});
         console.log("Cart items fetched for checkout:", cartItems);
@@ -19,13 +18,13 @@ router.post('/', async (req, res) => {
         }
 
         const order = {
-            userId: userId || 'guest', // Om userId inte finns, använd 'guest'
+            userId: userId || 'guest',
             items: cartItems,
             date: new Date()
         };
 
         if (userId) {
-            await orderHistoryDB.insert(order); // Spara endast i orderhistorik om användar-ID finns
+            await orderHistoryDB.insert(order);
         }
 
         await cartDB.remove({}, { multi: true });

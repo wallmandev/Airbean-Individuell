@@ -2,57 +2,59 @@ import { Router } from "express";
 import userSchema from "../models/userModel.js";
 import nedb from 'nedb-promises';
 
-const usersDB = new nedb({ filename: 'users.db', autoload: true });
 const router = Router();
+const usersDB = nedb.create('users.db');
 
+// Middleware function for authentication
+const authenticate = async (req, res, next) => {
+    const userId = req.headers.authorization;
+
+    if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized: Please log in' });
+    }
+
+    const user = await usersDB.findOne({ _id: userId });
+
+    if (!user) {
+        return res.status(401).json({ error: 'Unauthorized: Invalid user ID' });
+    }
+
+    req.user = user;
+    next();
+};
+
+// Middleware function for checking admin role
+const checkAdmin = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') {
+        next();
+    } else {
+        res.status(403).json({ error: 'Forbidden: You do not have the necessary permissions' });
+    }
+};
+
+// Route for user registration
+router.post('/register', async (req, res) => {
+    // Registration logic here
+});
+
+// Route for user login
 router.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
     try {
-        console.log('Login attempt:', req.body);
-        const { error } = userSchema.validate(req.body);
-        if (error) {
-            console.log('Validation error:', error.details[0].message);
-            return res.status(400).json({ success: false, message: error.details[0].message });
-        }
-        const { username, password } = req.body;
         const user = await usersDB.findOne({ username, password });
 
         if (user) {
-            console.log('User found:', user);
-            global.currentUser = user;
+            // If user is found, return success message
             return res.json({ success: true, message: 'Login successful', user });
         } else {
-            console.log('Invalid credentials');
-            return res.status(400).json({ success: false, message: 'Invalid credentials' });
+            // If user is not found, return error message
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
     } catch (error) {
-        console.error('Server error:', error);
+        console.error('Error during login:', error);
         return res.status(500).json({ success: false, message: 'Server error', error });
     }
 });
 
-router.post('/register', async (req, res) => {
-    try {
-        console.log('Registration attempt:', req.body);
-        const { error } = userSchema.validate(req.body);
-        if (error) {
-            console.log('Validation error:', error.details[0].message);
-            return res.status(400).json({ success: false, message: error.details[0].message });
-        }
-        const { username, password } = req.body;
-        const existingUser = await usersDB.findOne({ username });
-
-        if (existingUser) {
-            console.log('User already exists:', existingUser);
-            return res.status(400).json({ success: false, message: 'User already exists' });
-        } else {
-            await usersDB.insert({ username, password });
-            console.log('User registered:', { username, password });
-            return res.json({ success: true, message: 'Registration successful' });
-        }
-    } catch (error) {
-        console.error('Server error:', error);
-        return res.status(500).json({ success: false, message: 'Server error', error });
-    }
-});
-
-export default router;
+export { router as authRouter, authenticate, checkAdmin };

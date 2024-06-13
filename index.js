@@ -1,15 +1,18 @@
+//index.js
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import errorHandler from "./middlewares/errorHandler.js";
-import orderRouter from "./routes/order.js";
 import cartRouter from "./routes/cart.js";
-import authRouter from "./routes/auth.js";
+import { authRouter, authenticate, checkAdmin } from "./routes/auth.js";
 import checkoutRouter from "./routes/checkout.js";
 import orderHistoryRouter from "./routes/orderHistory.js";
 import aboutRouter from "./routes/about.js"
 import statusRouter from "./routes/status.js";
 import notFoundMiddleware from "./middlewares/urlNotFound.js";
+import addProductRouter from "./routes/addProduct.js";
+import menuRouter from './routes/menu.js';
+import campaignRouter from "./routes/campaign.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,13 +32,15 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/menu', orderRouter);
+app.use('/menu', menuRouter);
 app.use('/cart', cartRouter);
 app.use('/auth', authRouter);
 app.use('/checkout', checkoutRouter);
 app.use('/orderHistory', orderHistoryRouter);
 app.use('/about', aboutRouter);
 app.use('/status', statusRouter);
+app.use('/addProduct', addProductRouter);
+app.use('/campaign', campaignRouter);
 app.use(notFoundMiddleware)
 
 app.get('/', (req, res) => {
@@ -53,49 +58,3 @@ app.use((req, res, next) => {
 app.use(errorHandler);
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
-
-
-
-// const users = [
-//     {id: 1, username: 'admin', password: 'admin'},
-// ]
-
-// const menu = [
-//     {
-//         "id":1,
-//         "title":"Bryggkaffe",
-//         "desc":"Bryggd på månadens bönor.",
-//         "price":39
-//       },
-//       {
-//         "id":2,
-//         "title":"Caffè Doppio",
-//         "desc":"Bryggd på månadens bönor.",
-//         "price":49
-//       },
-//       {
-//         "id":3,
-//         "title":"Cappuccino",
-//         "desc":"Bryggd på månadens bönor.",
-//         "price":49
-//       },
-//       {
-//         "id":4,
-//         "title":"Latte Macchiato",
-//         "desc":"Bryggd på månadens bönor.",
-//         "price":49
-//       },
-//       {
-//         "id":5,
-//         "title":"Kaffe Latte",
-//         "desc":"Bryggd på månadens bönor.",
-//         "price":54
-//       },
-//       {
-//         "id":6,
-//         "title":"Cortado",
-//         "desc":"Bryggd på månadens bönor.",
-//         "price":39
-//       }
-// ]
-// database.insert(menu)

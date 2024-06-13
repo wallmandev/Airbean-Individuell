@@ -4,9 +4,21 @@ Börja med att köra npm init -y, nedb-promises, joi, nodemon, express, uuid
 
 Vi har alla i gruppen bidragit med kod men pga strul med tider så är det bara Alexander och Baran som pushat upp till main. Vi har skickat vår kod över discord och lagt in det separat för att få det att fungera på ett relativt vettigt sätt. 
 
+För registrering:
+http://localhost:8080/auth/register
+Gör POST-anrop. Skicka med { "username" : "ditt användarnamn", "password" : "ditt lösenord"}
+
+För login : 
+http://localhost:8080/auth/login
+
+//ADMIN 
+För att logga in som admin måste det skickas med i HEADERS: Key : Authorization
+                                                             Value: FwmS996dK8FQFGFw
+
+Gör POST-anrop. Skicka med { "username" : "ditt användarnamn", "password" : "ditt lösenord"}
 
 Menyn:
-För att kolla menyn : http://localhost:8080/menu
+För att kolla menyn (GET): http://localhost:8080/menu
 För att kolla efter specifikt id: http://localhost:8080/menu/  (här skriver du in det långa id som du hittar i airbean.db t.ex. Az3b6aeCng6rbrET)
 
 Varukorgen:
@@ -18,13 +30,6 @@ Om oss:
 Endpoint för om oss: http://localhost:8080/about
 
 
-För registrering:
-http://localhost:8080/auth/register
-Gör POST-anrop. Skicka med { "username" : "ditt användarnamn", "password" : "ditt lösenord"}
-
-För login : 
-http://localhost:8080/auth/login
-Gör POST-anrop. Skicka med { "username" : "ditt användarnamn", "password" : "ditt lösenord"}
 
 För att lägga en beställning som gäst:
 Gå till http://localhost:8080/checkout och gör ett POST-anrop
@@ -41,6 +46,26 @@ http://localhost:8080/orderhistory/ (här skriver du in din användares unika id
 För att se status på din order: 
 http://localhost:8080/status
 
+För att lägga till en ny produkt:
 
+(POST) http://localhost:8080/addProduct 
+(se till att du är inloggad som användare)
+i body måste värdena :"id": , "title": "", "desc": "", "price": skickas med och id får inte vara densamma som någon vara som redan finns i databasen.
 
+För att modifiera en produkt i menyn:
+(POST) http://localhost:8080/menu/{id}
+i URL så skickar du med det unika {_id} som finns i menu.db. Inte att förväxla med id. 
+även här måste värdena "id": , "title": "", "desc": "", "price": skickas med.
 
+För att ta bort en produkt i menyn:
+(DELETE) http://localhost:8080/menu/{id}
+i URL så skickar du med det unika {_id} som finns i menu.db. Inte att förväxla med {id}. 
+
+För att lägga till kampanjer:
+(POST) http://localhost:8080/campaign/create
+i BODY så skickar du med det unika {_id} som finns i menu.db. Inte att förväxla med id.
+ex: 
+{
+    "products": ["Az3b6aeCng6rbrET", "XFMyYITYP52LXcYq"], // Ersätt med faktiska produkt-_id
+    "price": 40
+}

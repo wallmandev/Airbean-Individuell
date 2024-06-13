@@ -1,3 +1,4 @@
+//about.js
 import { Router } from 'express';
 import nedb from 'nedb-promises';
 
@@ -18,4 +19,3 @@ router.get('/', async (req, res) => {
 });
 
 export default router;
-export { aboutDB };
